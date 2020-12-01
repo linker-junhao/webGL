@@ -13,7 +13,7 @@
     <canvas id="my-canvas" width="640" height="640"></canvas>
 </body>
 
-<script defer>
+<script defer type="module">
     
     function createShader(gl, type, source) {
         const shader = gl.createShader(type)
@@ -42,10 +42,10 @@
     const vertices = [
         -0.5, 0.5, 1.0, 0.0, 0.0,
         -0.5, -0.5, 0.0, 1.0, 0.0,
-        0, -0.5, 0.0, 0.0, 1.0,
-        -0.1, 0.5, 1.0, 0.0, 0.0,
-        0.3, 0.0, 0.0, 1.0, 0.0,
-        0.3, -0.9, 0.0, 0.0, 1.0
+        0.5, -0.5, 0.0, 0.0, 1.0,
+        0.0, 0.0, 1.0, 0.0, 0.0,
+        0.0, 0.5, 0.0, 1.0, 0.0,
+        0.5, 0.0, 0.0, 0.0, 1.0
     ]
 
     const vertex_buffer = gl.createBuffer()
