@@ -43,10 +43,10 @@
             canvas.getContext("experimental-webgl");
 
         const vertices = [
-            -0.5, 0.5, 0.0, 1.0,
+            -0.5, 0.5, 0.0, 2.0,
             -0.5, -0.5, 0.0, 0.0,
-            0.5, -0.5, 1.0, 0.0,
-            0.5, 0.5, 1.0, 1.0
+            0.5, -0.5, 2.0, 0.0,
+            0.5, 0.5, 2.0, 2.0
         ]
 
         const vertex_buffer = gl.createBuffer()
@@ -78,10 +78,11 @@
         precision lowp float;
         in highp vec2 vTextureCoord;
         uniform  sampler2D texSample;
+        uniform  sampler2D texSample2;
 
         out vec4 FragColor;
         void main(void) {
-           FragColor = texture(texSample, vTextureCoord);
+            FragColor = mix(texture(texSample, vec2(1.0, 1.0) - vTextureCoord), texture(texSample2, vec2(1.0, 1.0) - vTextureCoord), 0.6);
         }
     `
 
@@ -94,7 +95,8 @@
         gl.linkProgram(shaderProgram)
         gl.useProgram(shaderProgram)
 
-        const textureRes = await createTexture(gl)
+        const textureRes = await createTexture(gl, '/res/texture-pic.png')
+        const textureRes2 = await createTexture(gl, '/res/texture-pic2.jpg')
 
         function frameRender(gl) {
             gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buffer)
@@ -106,11 +108,15 @@
             gl.vertexAttribPointer(aTextureCoordLocation, 2, gl.FLOAT, false, 16, 8)
             gl.enableVertexAttribArray(aTextureCoordLocation)
 
-            const texSampleLocation = gl.getUniformLocation(shaderProgram, 'texSample')
-            const texture = textureRes
+            const texSample1Location = gl.getUniformLocation(shaderProgram, 'texSample')
             gl.activeTexture(gl.TEXTURE0)
-            gl.bindTexture(gl.TEXTURE_2D, texture)
-            gl.uniform1i(texSampleLocation, 0)
+            gl.bindTexture(gl.TEXTURE_2D, textureRes)
+            gl.uniform1i(texSample1Location, 0)
+
+            const texSample2Location = gl.getUniformLocation(shaderProgram, 'texSample2')
+            gl.activeTexture(gl.TEXTURE1)
+            gl.bindTexture(gl.TEXTURE_2D, textureRes2)
+            gl.uniform1i(texSample2Location, 1)
 
 
             gl.clearColor(0.5, 0.5, 0.5, 0.9)
@@ -140,12 +146,13 @@
 
     async function createTexture(gl, url = '/res/texture-pic.png') {
         const imgElem = await getImageElementContext(url)
-        console.log(imgElem)
         const texture = gl.createTexture()
         gl.bindTexture(gl.TEXTURE_2D, texture)
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imgElem)
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
         gl.bindTexture(gl.TEXTURE_2D, null)
         return texture
     }
