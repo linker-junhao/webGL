@@ -88,6 +88,10 @@ function initEvent() {
     controlY.value = dataGeneratedByInit.eventVal.moveCenter.y
 }
 
+function addMousemoveDraw() {
+    dataGeneratedByInit.gl.canvasElem.onmousemove = moveToClickedPoint
+}
+
 function moveToClickedPoint(e) {
     moveToPoint(e.offsetX, e.offsetY)
 }
@@ -123,6 +127,8 @@ function yChange(e) {
     params.y = parseInt(this.value)
     moveToPoint(params.x, params.y)
 }
+
+// rotation
 
 
 initGL()
