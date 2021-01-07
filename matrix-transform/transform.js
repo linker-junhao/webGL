@@ -40,14 +40,11 @@ const initVars = {
     // rotation
     uniform vec2 u_rotation;
     // base
-    uniform vec4 u_base;
+    uniform mat2 u_base;
 
     void main(void) {
         // base change
-        vec2 basedPosition = vec2(
-            a_position.x * u_base.x + a_position.y * u_base.y,
-            a_position.x * u_base.z + a_position.y * u_base.w
-        );
+        vec2 basedPosition = u_base * a_position;
 
         // rotate add
         vec2 rotatedPosition = vec2(
@@ -152,7 +149,7 @@ function drawScene() {
 
     gl.uniform2fv(dataGeneratedByInit.gl.glslVarLocation.rotationLocation, initVars.rotation)
 
-    gl.uniform4fv(dataGeneratedByInit.gl.glslVarLocation.baseLocation, initVars.base[0].concat(initVars.base[1]))
+    gl.uniformMatrix2fv(dataGeneratedByInit.gl.glslVarLocation.baseLocation, false,initVars.base[0].concat(initVars.base[1]))
 
     gl.drawArrays(gl.TRIANGLES, 0, 18);
 }
