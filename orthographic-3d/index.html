@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>webgl</title>
+    <script src="../lib/gl-matrix.js"></script>
+    <script src="../lib/util.js"></script>
+</head>
+
+<body>
+    <canvas id="my-canvas" width="640" height="640"></canvas>
+    <div>
+        <span>translation:</span>
+        <input type="number" id="translate-x-change" />
+        <input type="number" id="translate-y-change" />
+        <input type="number" id="translate-z-change" />
+    </div>
+    <div>
+        <span>base:</span>
+        <input type="text" id="base-x-change" placeholder="1,0,0" />
+        <input type="text" id="base-y-change" placeholder="0,1,0" />
+        <input type="text" id="base-z-change" placeholder="0,0,1" />
+    </div>
+</body>
+<script src="./transform.js"></script>
+
+</html>
