@@ -1,8 +1,8 @@
 // init var
 const initVars = {
-    translation: [120, 120],
+    translation: [0, 0],
     rotation: [0, 1],
-    base: [[0, 1], [1, 0]],
+    base: [[1, 0], [0, 1]],
     color: [Math.random(), Math.random(), Math.random(), 1],
     vertices: [
         // left column
@@ -39,16 +39,24 @@ const initVars = {
     uniform vec2 u_translation;
     // rotation
     uniform vec2 u_rotation;
+    // base
+    uniform vec4 u_base;
 
     void main(void) {
+        // base change
+        vec2 basedPosition = vec2(
+            a_position.x * u_base.x + a_position.y * u_base.y,
+            a_position.x * u_base.z + a_position.y * u_base.w
+        );
+
         // rotate add
         vec2 rotatedPosition = vec2(
-            a_position.x * u_rotation.y + a_position.y * u_rotation.x,
-            a_position.y * u_rotation.y - a_position.x * u_rotation.x
+            basedPosition.x * u_rotation.y + basedPosition.y * u_rotation.x,
+            basedPosition.y * u_rotation.y - basedPosition.x * u_rotation.x
         );
 
         // translate add
-        vec2 position = rotatedPosition + u_translation;
+        vec2 position = (rotatedPosition + u_translation);
 
         // convert the position to 0-1 space
         vec2 unitSpaceCoordinate = position / u_resolution;
@@ -79,8 +87,8 @@ const dataGeneratedByInit = {
     },
     eventVal: {
         moveCenter: {
-            x: 320,
-            y: 320
+            x: 0,
+            y: 0
         }
     },
     control: {
@@ -116,8 +124,9 @@ function initGL() {
     const resolutionUniformLocation = gl.getUniformLocation(shaderProgram, 'u_resolution')
     const translationLocation = gl.getUniformLocation(shaderProgram, "u_translation");
     const rotationLocation = gl.getUniformLocation(shaderProgram, 'u_rotation')
+    const baseLocation = gl.getUniformLocation(shaderProgram, 'u_base')
     dataGeneratedByInit.gl.glslVarLocation = {
-        positionAttributeLocation, resolutionUniformLocation, translationLocation, rotationLocation
+        positionAttributeLocation, resolutionUniformLocation, translationLocation, rotationLocation, baseLocation
     }
 
     const verticBuffer = glUtils.bufferData(gl, gl.ARRAY_BUFFER, new Float32Array(initVars.vertices), gl.STATIC_DRAW)
@@ -143,6 +152,8 @@ function drawScene() {
 
     gl.uniform2fv(dataGeneratedByInit.gl.glslVarLocation.rotationLocation, initVars.rotation)
 
+    gl.uniform4fv(dataGeneratedByInit.gl.glslVarLocation.baseLocation, initVars.base[0].concat(initVars.base[1]))
+
     gl.drawArrays(gl.TRIANGLES, 0, 18);
 }
 
@@ -162,21 +173,19 @@ function initEvent() {
     rotateControl.x.value = initVars.rotation[0]
     rotateControl.y.value = initVars.rotation[1]
 
+    baseControl.x.oninput = baseChange.bind(baseControl.x, 0)
+    baseControl.y.oninput = baseChange.bind(baseControl.y, 1)
+
 }
 
-function baseXChange(e) {
+function baseChange(idx = 0) {
     const val = this.value
     if(/^(\+|\-)?\d+,(\+|\-)?\d+/.test(val)) {
-        initVars.base[0] = this.value.split(',').map(p => parseInt(p))
+        initVars.base[idx] = this.value.split(',').map(p => parseInt(p))
+        drawScene()
     }
 }
 
-function baseXChange(e) {
-    const val = this.value
-    if(/^(\+|\-)?\d+,(\+|\-)?\d+/.test(val)) {
-        initVars.base[1] = this.value.split(',').map(p => parseInt(p))
-    }
-}
 
 function addMousemoveDraw() {
     dataGeneratedByInit.gl.canvasElem.onmousemove = moveToClickedPoint
