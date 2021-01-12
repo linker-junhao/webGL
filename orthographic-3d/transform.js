@@ -423,31 +423,41 @@ function initEvent() {
 }
 
 function rotateChange(idx = 0) {
-    initVars.rotateAngle[idx] = this.value
-    const deg = Math.PI / 180 * this.value
+    // const deg = Math.PI / 180 * this.value;
+    const pos_neg = this.value - initVars.rotateAngle[idx];
+    const unitDeg = Math.PI / 180 * pos_neg
+    const org = [...initVars.rotateBase[0], ...initVars.rotateBase[1], ...initVars.rotateBase[2]]
     if(idx === 0) {
-        initVars.rotateBase[0] = [1, 0, 0]
-        initVars.rotateBase[1] = [0, Math.cos(deg), Math.sin(deg)]
-        initVars.rotateBase[2] = [0, -Math.sin(deg), Math.cos(deg)]
+        const trans = [
+          1, 0, 0, 
+          0, Math.cos(unitDeg), Math.sin(unitDeg), 
+          0, -Math.sin(unitDeg), Math.cos(unitDeg)
+        ]
+        initVars.rotateBase = glMatrix.mat3.mul(initVars.rotateBase, glMatrix.mat3.fromValues(...org), glMatrix.mat3.fromValues(...trans))
     }
 
     if(idx === 1) {
-        initVars.rotateBase[0] = [Math.cos(deg), 0, -Math.sin(deg)]
-        initVars.rotateBase[1] = [0, 1, 0]
-        initVars.rotateBase[2] = [Math.sin(deg), 0, Math.cos(deg)]
+        const trans = [
+          Math.cos(unitDeg), 0, -Math.sin(unitDeg), 
+          0, 1, 0, 
+          Math.sin(unitDeg), 0, Math.cos(unitDeg)
+        ]
+        initVars.rotateBase = glMatrix.mat3.mul(initVars.rotateBase, glMatrix.mat3.fromValues(...org), glMatrix.mat3.fromValues(...trans))
     }
 
     if(idx === 2) {
-        // initVars.rotateBase[0] = [Math.cos(deg), -Math.sin(deg), 0]
-        // initVars.rotateBase[1] = [Math.sin(deg), Math.cos(deg), 0]
-        // initVars.rotateBase[2] = [0, 0, 1]
-        const org = [...initVars.rotateBase[0], ...initVars.rotateBase[1], ...initVars.rotateBase[2]]
-        const trans = [Math.cos(deg), -Math.sin(deg), 0, Math.sin(deg), Math.cos(deg), 0, 0, 0, 1]
+        const trans = [
+          Math.cos(unitDeg), -Math.sin(unitDeg), 0,
+          Math.sin(unitDeg), Math.cos(unitDeg), 0, 
+          0, 0, 1
+        ]
         initVars.rotateBase = glMatrix.mat3.mul(initVars.rotateBase, glMatrix.mat3.fromValues(...org), glMatrix.mat3.fromValues(...trans))
-        initVars.rotateBase[0] = initVars.rotateBase.slice(0, 3)
-        initVars.rotateBase[1] = initVars.rotateBase.slice(3, 6)
-        initVars.rotateBase[2] = initVars.rotateBase.slice(6, 9)
     }
+    initVars.rotateBase[0] = initVars.rotateBase.slice(0, 3)
+    initVars.rotateBase[1] = initVars.rotateBase.slice(3, 6)
+    initVars.rotateBase[2] = initVars.rotateBase.slice(6, 9)
+
+    initVars.rotateAngle[idx] = this.value
     drawScene()
 }
 
